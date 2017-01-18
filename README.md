@@ -12,7 +12,7 @@ npm install prep-piece-requests
 
 ## Usage
 ``` typescript
-import PPC from './prep-piece-requests';
+import PPC from 'prep-piece-requests';
 
 
 // Total length of torrent: 962416635

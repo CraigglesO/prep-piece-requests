@@ -4,6 +4,14 @@
 
 Quickly and easily prep for downloads without polluting your code.
 
+Most Bittorent protocols only allow 16kb requests. As such we have to bundle requests if piece sizes are too large.
+
+Features:
+* Handles all the parts to each piece
+* Last piece size is handled as well
+* Gives you the number of parts in the piece request so you can track incoming parts.
+* One command is all it takes.
+
 ## Install
 
 ``` typescript
@@ -24,8 +32,11 @@ const ppr = new PPR(962416635, 1048576, 918, 872443);
 
 
 // First piece:
-ppr.prepareRequest(0);
-// 64 (128 with request buffers) pieces (prior to concat):
+let r = ppr.prepareRequest(0);
+r.count // -> 64
+
+r.resultBuf
+// Prior to concat it looks like this:
 // [ <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 00 00 00 00 00 40 00>,
 // <Buffer 00 00 00 0d 06>,
@@ -45,8 +56,11 @@ ppr.prepareRequest(0);
 
 
 // Last piece:
-ppr.prepareRequest(917);
-// 54 (108 with request buffers) pieces (prior to concat):
+let r2 = ppr.prepareRequest(917);
+r2.count // -> 54
+
+r2.resultBuf
+// Prior to concat it looks like this:
 // [ <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 00 00 00 00 00 40 00>,
 // <Buffer 00 00 00 0d 06>,

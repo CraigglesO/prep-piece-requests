@@ -1,6 +1,6 @@
 {
   "name": "prep-piece-requests",
-  "version": "0.9.0",
+  "version": "0.9.6",
   "description": "Torrents have different pieces sizes. This will manage those differences",
   "main": "prep-piece-requests.js",
   "scripts": {

@@ -16,8 +16,10 @@ class PPR {
     prepareRequest(pieceNumber) {
         const self = this;
         let result = [];
+        let count = 0;
         if (pieceNumber !== self.pieceCount) {
             let part = 0;
+            count = self.parts;
             for (let i = 0; i < self.parts; i++) {
                 let buf = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
                 buf.writeUInt32BE(pieceNumber, 0);
@@ -29,6 +31,7 @@ class PPR {
         }
         else {
             let part = 0;
+            count = self.lastParts;
             for (let i = 0; i < self.lastParts; i++) {
                 let buf = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
                 buf.writeUInt32BE(pieceNumber, 0);
@@ -44,10 +47,11 @@ class PPR {
                 buf.writeUInt32BE(self.leftover, 8);
                 result.push(REQUEST);
                 result.push(buf);
+                count++;
             }
         }
         let resultBuf = buffer_1.Buffer.concat(result);
-        return resultBuf;
+        return { resultBuf, count };
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

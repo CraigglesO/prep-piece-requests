@@ -9,7 +9,7 @@ const ppr = new PPR(962416635, 1048576, 918, 872443);
 
 
 // First piece:
-let x = ppr.prepareRequest(0);
+let x = ppr.prepareRequest(917);
 
-console.log(x);
-console.log(x.length);
+console.log(x.resultBuf);
+console.log(x.count);

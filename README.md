@@ -12,7 +12,7 @@ npm install prep-piece-requests
 
 ## Usage
 ``` typescript
-import PPC from 'prep-piece-requests';
+import PPR from 'prep-piece-requests';
 
 
 // Total length of torrent: 962416635
@@ -20,33 +20,47 @@ import PPC from 'prep-piece-requests';
 // Number of pieces:        918
 // Last piece size:         872443
 
-const ppc = new PPC(962416635, 1048576, 918, 872443);
+const ppr = new PPR(962416635, 1048576, 918, 872443);
 
 
 // First piece:
-ppc.prepareRequest(0);
-// 64 pieces:
-// [ <Buffer 00 00 00 00 00 00 00 00 00 00 40 00>,
+ppr.prepareRequest(0);
+// 64 (128 with request buffers) pieces (prior to concat):
+// [ <Buffer 00 00 00 0d 06>,
+// <Buffer 00 00 00 00 00 00 00 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 00 40 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 00 80 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 00 c0 00 00 00 40 00>,
 //  ...
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 0f 40 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 0f 80 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 00 00 00 0f c0 00 00 00 40 00> ]
 
 
 
 // Last piece:
-ppc.prepareRequest(917);
-// 54 pieces:
-// [ <Buffer 00 00 03 95 00 00 00 00 00 00 40 00>,
+ppr.prepareRequest(917);
+// 54 (108 with request buffers) pieces (prior to concat):
+// [ <Buffer 00 00 00 0d 06>,
+// <Buffer 00 00 03 95 00 00 00 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 00 40 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 00 80 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 00 c0 00 00 00 40 00>,
 // ...
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 0c c0 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 0d 00 00 00 00 40 00>,
+// <Buffer 00 00 00 0d 06>,
 // <Buffer 00 00 03 95 00 0d 40 00 00 00 0f fb> ]
 
 ```

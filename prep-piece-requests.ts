@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 
 const DL_SIZE = 16384; // This is the default allowable download size per request
+const REQUEST = Buffer.from([0x00, 0x00, 0x00, 0x0d, 0x06]);
 
 class PPR {
   length:        number
@@ -21,7 +22,7 @@ class PPR {
     self.leftover      = lastPieceSize % DL_SIZE;
   }
 
-  prepareRequest(pieceNumber: number): Array<Buffer> {
+  prepareRequest(pieceNumber: number): Buffer {
     const self = this;
     let result = [];
     // If not last piece:
@@ -30,6 +31,7 @@ class PPR {
       for (let i = 0; i < self.parts; i++) {
         let buf = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
         buf.writeUInt32BE(pieceNumber, 0) // set the piece position
+        result.push(REQUEST);
         result.push(buf);
         buf.writeUInt32BE(part,4);        // set the offset inside the piece
         part += DL_SIZE;
@@ -39,6 +41,7 @@ class PPR {
       for (let i = 0; i < self.lastParts; i++) {
         let buf = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
         buf.writeUInt32BE(pieceNumber, 0) // set the piece position
+        result.push(REQUEST);
         result.push(buf);
         buf.writeUInt32BE(part,4);        // set the offset inside the piece
         part += DL_SIZE;
@@ -48,10 +51,12 @@ class PPR {
         buf.writeUInt32BE(pieceNumber, 0) // (value,offest)
         buf.writeUInt32BE(part,4);        // set the offset inside the piece
         buf.writeUInt32BE(self.leftover, 8) // The size is smaller
+        result.push(REQUEST);
         result.push(buf)
       }
     }
-    return result;
+    let resultBuf = Buffer.concat(result);
+    return resultBuf;
   }
 }
 

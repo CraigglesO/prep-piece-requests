@@ -1,6 +1,7 @@
 "use strict";
 const buffer_1 = require("buffer");
 const DL_SIZE = 16384;
+const REQUEST = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x0d, 0x06]);
 class PPR {
     constructor(length, pieceSize, pieceCount, lastPieceSize) {
         const self = this;
@@ -20,6 +21,7 @@ class PPR {
             for (let i = 0; i < self.parts; i++) {
                 let buf = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
                 buf.writeUInt32BE(pieceNumber, 0);
+                result.push(REQUEST);
                 result.push(buf);
                 buf.writeUInt32BE(part, 4);
                 part += DL_SIZE;
@@ -30,6 +32,7 @@ class PPR {
             for (let i = 0; i < self.lastParts; i++) {
                 let buf = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
                 buf.writeUInt32BE(pieceNumber, 0);
+                result.push(REQUEST);
                 result.push(buf);
                 buf.writeUInt32BE(part, 4);
                 part += DL_SIZE;
@@ -39,10 +42,12 @@ class PPR {
                 buf.writeUInt32BE(pieceNumber, 0);
                 buf.writeUInt32BE(part, 4);
                 buf.writeUInt32BE(self.leftover, 8);
+                result.push(REQUEST);
                 result.push(buf);
             }
         }
-        return result;
+        let resultBuf = buffer_1.Buffer.concat(result);
+        return resultBuf;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

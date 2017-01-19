@@ -1,10 +1,12 @@
 "use strict";
 const buffer_1 = require("buffer");
+const fs_1 = require("fs");
 const DL_SIZE = 16384;
 const REQUEST = buffer_1.Buffer.from([0x00, 0x00, 0x00, 0x0d, 0x06]);
 class PPR {
-    constructor(length, pieceSize, pieceCount, lastPieceSize) {
+    constructor(files, length, pieceSize, pieceCount, lastPieceSize) {
         const self = this;
+        self.files = files;
         self.length = length;
         self.pieceSize = pieceSize;
         self.pieceCount = --pieceCount;
@@ -13,7 +15,7 @@ class PPR {
         self.lastParts = Math.floor(lastPieceSize / DL_SIZE);
         self.leftover = lastPieceSize % DL_SIZE;
     }
-    prepareRequest(pieceNumber) {
+    prepareRequest(pieceNumber, cb) {
         const self = this;
         let result = [];
         let count = 0;
@@ -51,7 +53,38 @@ class PPR {
             }
         }
         let resultBuf = buffer_1.Buffer.concat(result);
-        return { resultBuf, count };
+        cb(resultBuf, count);
+    }
+    pieceIndex(num) {
+        return num * this.pieceSize;
+    }
+    savePiece(index, buf) {
+        const self = this;
+        self.files.forEach((file) => {
+            if ((file.offset <= index) && (index < (file.offset + file.length))) {
+                let offset = index - file.offset;
+                let bufW = null;
+                if ((index + buf.length) > (file.offset + file.length)) {
+                    let newBufferLength = buf.length - ((offset + buf.length) - (file.offset + file.length));
+                    bufW = buf.slice(0, newBufferLength);
+                    buf = buf.slice(newBufferLength);
+                    index += newBufferLength;
+                }
+                var f = fs_1.openSync('./' + file.path, 'r+');
+                try {
+                    if (!bufW) {
+                        fs_1.writeSync(f, buf, 0, buf.length, offset);
+                    }
+                    else {
+                        fs_1.writeSync(f, bufW, 0, bufW.length, offset);
+                    }
+                }
+                catch (e) {
+                    return false;
+                }
+            }
+        });
+        return true;
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

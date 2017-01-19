@@ -1,5 +1,10 @@
 # prep-piece-requests
 
+## NOTICE!
+
+This repository is deprecated - please use torrent-piece-handler here:
+https://github.com/CraigglesO/torrent-piece-handler.git
+
 ### Torrents have different pieces sizes. This will manage those differences
 
 Quickly and easily prep for downloads without polluting your code.
@@ -32,7 +37,9 @@ const ppr = new PPR(962416635, 1048576, 918, 872443);
 
 
 // First piece:
-let r = ppr.prepareRequest(0);
+let r = ppr.prepareRequest(0, (buf, count) => {
+
+  });
 r.count // -> 64
 
 r.resultBuf
@@ -56,7 +63,9 @@ r.resultBuf
 
 
 // Last piece:
-let r2 = ppr.prepareRequest(917);
+let r2 = ppr.prepareRequest(917, (buf, count) => {
+  
+  });
 r2.count // -> 54
 
 r2.resultBuf

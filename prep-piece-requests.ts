@@ -1,4 +1,12 @@
 import { Buffer } from 'buffer';
+import { openSync, writeSync } from 'fs';
+
+interface Files {
+  path:   string
+  name:   string
+  length: number
+  offset: number
+}
 
 interface returnBuffer {
   resultBuf: Buffer
@@ -9,6 +17,7 @@ const DL_SIZE = 16384; // This is the default allowable download size per reques
 const REQUEST = Buffer.from([0x00, 0x00, 0x00, 0x0d, 0x06]);
 
 class PPR {
+  files:         Array<Files>
   length:        number
   pieceSize:     number
   pieceCount:    number
@@ -16,8 +25,9 @@ class PPR {
   parts:         number
   lastParts:     number
   leftover:      number
-  constructor(length: number, pieceSize: number, pieceCount: number, lastPieceSize: number) {
+  constructor(files: Array<Files>, length: number, pieceSize: number, pieceCount: number, lastPieceSize: number) {
     const self = this;
+    self.files         = files
     self.length        = length;
     self.pieceSize     = pieceSize;
     self.pieceCount    = --pieceCount;
@@ -27,7 +37,7 @@ class PPR {
     self.leftover      = lastPieceSize % DL_SIZE;
   }
 
-  prepareRequest(pieceNumber: number): returnBuffer {
+  prepareRequest(pieceNumber: number, cb: Function) {
     const self = this;
     let result = [];
     let count  = 0;
@@ -65,7 +75,43 @@ class PPR {
       }
     }
     let resultBuf = Buffer.concat(result);
-    return { resultBuf, count };
+    cb(resultBuf, count);
+  }
+
+  pieceIndex(num: number): number {
+    return num * this.pieceSize;
+  }
+
+  // Find the proper file(s) and write:
+  savePiece(index: number, buf: Buffer): Boolean {
+    const self = this;
+
+    //First get which file this index is in:
+    self.files.forEach((file) => {
+      // If the buffer fits within the file:
+      if ( (file.offset <= index) && (index < (file.offset + file.length)) ) {
+        // check for index offset relative to file:
+        let offset = index - file.offset;
+        // If the entire buffer does not fit within the file:
+        let bufW = null;
+        if ( (index + buf.length) > (file.offset + file.length) ) {
+          let newBufferLength = buf.length - ( (offset + buf.length) - (file.offset + file.length) );
+          // Create new buffer and update index
+          bufW = buf.slice(0, newBufferLength );
+          buf = buf.slice(newBufferLength);
+          index += newBufferLength;
+        }
+        var f = openSync('./'+file.path, 'r+');
+        try {
+          if (!bufW) {
+            writeSync(f, buf, 0, buf.length, offset);
+          } else {
+            writeSync(f, bufW, 0, bufW.length, offset);
+          }
+        } catch (e) { return false; }
+      }
+    });
+    return true;
   }
 }
 

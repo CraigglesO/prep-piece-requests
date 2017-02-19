@@ -1,5 +1,7 @@
 # prep-piece-requests
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/CraigglesO/prep-piece-requests.svg)](https://greenkeeper.io/)
+
 ## NOTICE!
 
 This repository is deprecated - please use torrent-piece-handler here:
